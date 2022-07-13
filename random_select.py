@@ -1,67 +1,25 @@
 import os
+import dbtools as db
 import numpy as np
 import sqlite3
 
 db_path = 'mega_millions.db'
 
-def execute_command(sql_str, values=None):
-    """Execute a database command"""
-    conn_db = None
-    cursor = None    
-    
-    try:
-        conn_db = sqlite3.connect(db_path)
-        cursor = conn_db.cursor()
-        if values is None:
-            cursor.execute(sql_str)
-        else:
-            cursor.execute(sql_str, values)
-        conn_db.commit()
-    except sqlite3.Error as error:
-        print('Failed to execute SQL Command', error)
-        cursor.close()
-    finally:
-        cursor.close()
-        conn_db.close()
-
-
-def execute_query(sql_str, values=None):
-    """Execute SELECT statement"""
-    results = None
-    conn_db = None
-    cursor = None
-    
-    try:
-        conn_db = sqlite3.connect(db_path)
-        cursor = conn_db.cursor()
-        if values is None:
-            results = cursor.execute(sql_str).fetchall()
-        else:
-            results = cursor.execute(sql_str, values).fetchall()
-        conn_db.commit()
-    except sqlite3.Error as error:
-        print('Failed to execute SQL Command', error)
-        cursor.close()
-    finally:
-        cursor.close()
-        conn_db.close()
-
-    return results
 
 def insert_draw(data_tuple):
     """Insert the random draw in the database"""
     sql_str = '''INSERT INTO draws VALUES (?, ?, ?, ?, ?, ?, ?)'''
-    execute_command(sql_str, data_tuple)
+    db.execute_command(db_path, sql_str, data_tuple)
     
 def main():
     white_balls = []
     mega_balls = []
 
     sql_str = '''SELECT ball_1, ball_2, ball_3, ball_4, ball_5 FROM mega_millions'''
-    results = execute_query(sql_str)
+    results = db.execute_query(db_path, sql_str)
 
     sql_str = '''SELECT mega_ball FROM mega_millions'''
-    mega_result = execute_query(sql_str)
+    mega_result = db.execute_query(db_path, sql_str)
 
     for rows in results:
         for balls in rows:

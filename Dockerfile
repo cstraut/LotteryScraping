@@ -5,7 +5,7 @@ RUN sudo apt-get update && sudo apt-get upgrade -y && \
 
 COPY geckodriver_linux /usr/local/bin
 
-RUN pip install selenium pyvirtualdisplay
+RUN pip install selenium pyvirtualdisplay numpy
 
 FROM build
 
