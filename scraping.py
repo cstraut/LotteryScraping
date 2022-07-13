@@ -1,5 +1,5 @@
 import os
-import sqlite3
+import dbtools as db
 from time import sleep
 
 from pyvirtualdisplay import Display
@@ -10,64 +10,18 @@ from selenium.webdriver.firefox.options import Options as FirefoxOptions
 
 db_path = 'mega_millions.db'
 
-def execute_command(sql_str, values=None):
-    """Execute a database command"""
-    conn_db = None
-    cursor = None    
-    
-    try:
-        conn_db = sqlite3.connect(db_path)
-        cursor = conn_db.cursor()
-        if values is None:
-            cursor.execute(sql_str)
-        else:
-            cursor.execute(sql_str, values)
-        conn_db.commit()
-    except sqlite3.Error as error:
-        print('Failed to execute SQL Command', error)
-        cursor.close()
-    finally:
-        cursor.close()
-        conn_db.close()
-
-
-def execute_query(sql_str, values=None):
-    """Execute SELECT statement"""
-    results = None
-    conn_db = None
-    cursor = None
-    
-    try:
-        conn_db = sqlite3.connect(db_path)
-        cursor = conn_db.cursor()
-        if values is None:
-            result = cursor.execute(sql_str)
-        else:
-            result = cursor.execute(sql_str, values)
-        conn_db.commit()
-    except sqlite3.Error as error:
-        print('Failed to execute SQL Command', error)
-        cursor.close()
-    finally:
-        cursor.close()
-        conn_db.close()
-
-
 def main():
     web = 'https://www.usamega.com/mega-millions/results'
     
     # Set path if running in the container to local folder and not MAC
-    path = '/usr/src/app'
-    # path = '/Users/cstraut/Lottery'
+    path = os.getcwd()
+
     date_in_range = True
 
     # Find table by class name
     number_balls = []
     mega_balls = []
     list_balls = []
-
-    # display = Display(visible=0, size=(1600, 1024))
-    # display.start()
 
     # Remove any old database file
     if os.path.isfile(db_path):
@@ -76,11 +30,11 @@ def main():
     # Create database and table to store the information
     sql_str = '''CREATE TABLE mega_millions (id INT PRIMARY KEY, draw_date TEXT NOT NULL,
         ball_1 INT, ball_2 INT, ball_3 INT, ball_4 INT, ball_5 INT, mega_ball INT);'''
-    execute_command(sql_str)
+    db.execute_command(db_path, sql_str)
 
     # Create database table DRAWS for future processing
     sql_str = '''CREATE TABLE draws (id INT PRIMARY KEY, ball_1 INT, ball_2 INT, ball_3 INT, ball_4 INT, ball_5 INT, mega_ball INT);'''
-    execute_command(sql_str)
+    db.execute_command(db_path, sql_str)
 
     # Set initial index value of 1
     index = 1
@@ -104,7 +58,7 @@ def main():
                 int(list_balls[2]), int(list_balls[3]), int(list_balls[4]), int(list_balls[5]))
             sql_str = '''INSERT INTO mega_millions VALUES (?, ?, ?, ?, ?, ?, ?, ?)'''
 
-            execute_command(sql_str, data_tuple)
+            db.execute_command(db_path, sql_str, data_tuple)
 
             index += 1
 
