@@ -1,95 +1,54 @@
 import os
+import dbtools as db
 import random
 import sqlite3
 
 db_path = 'mega_millions.db'
 
-def execute_command(sql_str, values=None):
-    """Execute a database command"""
-    conn_db = None
-    cursor = None    
-    
-    try:
-        conn_db = sqlite3.connect(db_path)
-        cursor = conn_db.cursor()
-        if values is None:
-            cursor.execute(sql_str)
-        else:
-            cursor.execute(sql_str, values)
-        conn_db.commit()
-    except sqlite3.Error as error:
-        print('Failed to execute SQL Command', error)
-        cursor.close()
-    finally:
-        cursor.close()
-        conn_db.close()
-
-
-def execute_query(sql_str, values=None):
-    """Execute SELECT statement"""
-    results = None
-    conn_db = None
-    cursor = None
-    
-    try:
-        conn_db = sqlite3.connect(db_path)
-        cursor = conn_db.cursor()
-        if values is None:
-            results = cursor.execute(sql_str).fetchall()
-        else:
-            results = cursor.execute(sql_str, values).fetchall()
-        conn_db.commit()
-    except sqlite3.Error as error:
-        print('Failed to execute SQL Command', error)
-        cursor.close()
-    finally:
-        cursor.close()
-        conn_db.close()
-
-    return results
 
 def insert_draw(data_tuple):
     """Insert the random draw in the database"""
     sql_str = '''INSERT INTO draws VALUES (?, ?, ?, ?, ?, ?, ?)'''
-    execute_command(sql_str, data_tuple)
+    db.execute_command(db_path, sql_str, data_tuple)
     
+
 def main():
     row_id = 1
 
     ball_1 = []
     sql_str = 'SELECT ball_1 FROM mega_millions'
-    ball_1 = execute_query(sql_str)
+    ball_1 = db.execute_query(db_path, sql_str)
 
     for z in range(5000000):
         index = random.randint(1, len(ball_1))
         pick1 = ball_1[index - 1][0]
             
         sql_str = 'SELECT ball_2 FROM mega_millions WHERE ball_1 = {}'.format(pick1)
-        results = execute_query(sql_str)
+        results = db.execute_query(db_path, sql_str)
 
         index = random.randint(1, len(results))
         pick2 = results[index - 1][0]
         
         sql_str = 'SELECT ball_3 FROM mega_millions WHERE ball_2 = {}'.format(pick2)
-        results = execute_query(sql_str)
+        results = db.execute_query(db_path.sql_str)
 
         index = random.randint(1, len(results))
         pick3 = results[index - 1][0]
 
         sql_str = 'SELECT ball_4 FROM mega_millions WHERE ball_3 = {}'.format(pick3)
-        results = execute_query(sql_str)
+        results = db.execute_query(db_path, sql_str)
 
         index = random.randint(1, len(results))
         pick4 = results[index - 1][0]
 
         sql_str = 'SELECT ball_5 FROM mega_millions WHERE ball_4 = {}'.format(pick4)
-        results = execute_query(sql_str)
+        results = db.execute_query(db_path, sql_str)
 
         index = random.randint(1, len(results))
         pick5 = results[index - 1][0]
 
         sql_str = 'SELECT mega_ball FROM mega_millions WHERE ball_5 = {}'.format(pick5)
-        results = execute_query(sql_str)
+        results = db.execute_query(db_path, sql_str)
         
         index = random.randint(1, len(results))
         pick_mega_ball = results[index - 1][0]
@@ -99,6 +58,7 @@ def main():
         row_id += 1
         if row_id % 1000 == 0:
             print("Iteration - {}".format(row_id))
+
 
 def sample_of_sample():
     for y in range(100):
