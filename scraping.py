@@ -1,4 +1,5 @@
 import os
+import json
 import dbtools as db
 from time import sleep
 
@@ -9,7 +10,48 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 
 db_path = 'mega_millions.db'
+hard_end_date = "Tue, September, 19, 2017"
 
+global settings
+settings = {}
+
+
+def read_settings(settingsFilename='scrapeSettings.json'):
+    '''
+    scrape_config.json is expected to be a list. This function returns a list
+    of test config objects.
+    '''
+    if not os.path.exists(settingsFilename):
+        print ("{} doesn't exist, creating settings file".format(settingsFilename))
+        settings = {
+            "MegaMillions": [
+                {
+                  "endDate": hard_end_date,
+                  "endIndex": 1
+                }
+            ]
+        }
+        write_settings(settings)
+    else:
+        with open(settingsFilename, 'r') as f:
+            settings = json.load(f)
+
+    return settings
+
+
+def write_settings(json_settings, settingsFilename='scrapeSettings.json'):
+    # writes the settings file once all of the website data has been scraped preserving the last processed
+    # date and the last index value for writing new records. This helps reduce the information need to scrape
+    # for each run
+
+    if not os.path.exists(settingsFilename):
+        with open(settingsFilename, "w") as f:
+            json.dump(json_settings, f, indent=2)
+    else:
+        with open(settingsFilename, "w") as f:
+            json.dump(json_settings, f, indent=2)
+
+    
 def main():
     web = 'https://www.usamega.com/mega-millions/results'
     
@@ -23,21 +65,26 @@ def main():
     mega_balls = []
     list_balls = []
 
-    # Remove any old database file
-    if os.path.isfile(db_path):
-        os.remove(db_path)
+    # Create database file on first run
+    if not os.path.isfile(db_path):
+        # Create database and table to store the information
+        sql_str = '''CREATE TABLE mega_millions (id INT PRIMARY KEY, draw_date TEXT NOT NULL,
+            ball_1 INT, ball_2 INT, ball_3 INT, ball_4 INT, ball_5 INT, mega_ball INT);'''
+        db.execute_command(db_path, sql_str)
 
-    # Create database and table to store the information
-    sql_str = '''CREATE TABLE mega_millions (id INT PRIMARY KEY, draw_date TEXT NOT NULL,
-        ball_1 INT, ball_2 INT, ball_3 INT, ball_4 INT, ball_5 INT, mega_ball INT);'''
-    db.execute_command(db_path, sql_str)
+        # Create database table DRAWS for future processing
+        sql_str = '''CREATE TABLE draws (id INT PRIMARY KEY, ball_1 INT, ball_2 INT, ball_3 INT, ball_4 INT, ball_5 INT, mega_ball INT);'''
+        db.execute_command(db_path, sql_str)
 
-    # Create database table DRAWS for future processing
-    sql_str = '''CREATE TABLE draws (id INT PRIMARY KEY, ball_1 INT, ball_2 INT, ball_3 INT, ball_4 INT, ball_5 INT, mega_ball INT);'''
-    db.execute_command(db_path, sql_str)
+    # Load settings file info
+    settings = read_settings()
 
     # Set initial index value of 1
-    index = 1
+    record = settings['MegaMillions'][0]
+    index = record['endIndex']
+    end_date = record['endDate']
+
+    # Latest results always start on page 1
     page_count = 1
 
     while date_in_range:
@@ -45,11 +92,16 @@ def main():
         options.add_argument("--headless")
         driver = webdriver.Firefox(options=options)
         driver.get(web)
-        driver.implicitly_wait(3)
+        driver.implicitly_wait(2)
 
         for i in range(1, 27):
             row_date = driver.find_element(By.XPATH, '/html/body/div[1]/main/div[4]/table/tbody/tr[{}]/td[1]/section/a'.format(i)).text
+
+            if page_count == 1 and i == 1:
+                last_row_date = row_date
+
             print("Row Date - " + row_date)
+
             for j in range(1, 7):
                 list_balls.append(driver.find_element(By.XPATH, '/html/body/div[1]/main/div[4]/table/tbody/tr[{}]/td[1]/section/ul/li[{}]'.format(i, j)).text)
 
@@ -64,13 +116,27 @@ def main():
 
             list_balls = []
 
-            if row_date == 'Tue, October, 17, 2017':
+            if end_date is None:
+                end_date = hard_end_date
+
+            if row_date == end_date:
                 date_in_range = False
                 break            
 
         page_count += 1
         driver.close()
         web = "https://www.usamega.com/mega-millions/results/{}".format(page_count)
+
+    json_settings = {
+        "MegaMillions": [
+            {
+                "endDate": last_row_date,
+                "endIndex": index 
+            }
+        ]
+    }
+   
+    write_settings(json_settings)
 
 if __name__ == '__main__':
     main()
