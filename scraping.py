@@ -59,6 +59,7 @@ def main():
     path = os.getcwd()
 
     date_in_range = True
+    first_pass = True
 
     # Find table by class name
     number_balls = []
@@ -79,10 +80,8 @@ def main():
     # Load settings file info
     settings = read_settings()
 
-    # Set initial index value of 1
-    record = settings['MegaMillions'][0]
-    index = record['endIndex']
-    end_date = record['endDate']
+    index = settings['MegaMillions'][0]['endIndex']
+    end_date = settings['MegaMillions'][0]['endDate']
 
     # Latest results always start on page 1
     page_count = 1
@@ -97,8 +96,9 @@ def main():
         for i in range(1, 27):
             row_date = driver.find_element(By.XPATH, '/html/body/div[1]/main/div[4]/table/tbody/tr[{}]/td[1]/section/a'.format(i)).text
 
-            if page_count == 1 and i == 1:
+            if first_pass:
                 last_row_date = row_date
+                first_pass = False
 
             print("Row Date - " + row_date)
 
