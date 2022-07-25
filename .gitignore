@@ -4,5 +4,6 @@
 .log
 .tmp
 .pyc
+.json
 
 .code-workspace

@@ -91,7 +91,6 @@ def main():
         options.add_argument("--headless")
         driver = webdriver.Firefox(options=options)
         driver.get(web)
-        driver.implicitly_wait(2)
 
         for i in range(1, 27):
             row_date = driver.find_element(By.XPATH, '/html/body/div[1]/main/div[4]/table/tbody/tr[{}]/td[1]/section/a'.format(i)).text
@@ -102,26 +101,25 @@ def main():
 
             print("Row Date - " + row_date)
 
-            for j in range(1, 7):
-                list_balls.append(driver.find_element(By.XPATH, '/html/body/div[1]/main/div[4]/table/tbody/tr[{}]/td[1]/section/ul/li[{}]'.format(i, j)).text)
-
-            # Insert data into the database
-            data_tuple = (index, row_date, int(list_balls[0]), int(list_balls[1]),
-                int(list_balls[2]), int(list_balls[3]), int(list_balls[4]), int(list_balls[5]))
-            sql_str = '''INSERT INTO mega_millions VALUES (?, ?, ?, ?, ?, ?, ?, ?)'''
-
-            db.execute_command(db_path, sql_str, data_tuple)
-
-            index += 1
-
-            list_balls = []
-
             if end_date is None:
                 end_date = hard_end_date
 
             if row_date == end_date:
                 date_in_range = False
                 break            
+
+            for j in range(1, 7):
+                list_balls.append(driver.find_element(By.XPATH, '/html/body/div[1]/main/div[4]/table/tbody/tr[{}]/td[1]/section/ul/li[{}]'.format(i, j)).text)
+
+            # Insert data into the database
+            index += 1
+            data_tuple = (index, row_date, int(list_balls[0]), int(list_balls[1]),
+                int(list_balls[2]), int(list_balls[3]), int(list_balls[4]), int(list_balls[5]))
+            sql_str = '''INSERT INTO mega_millions VALUES (?, ?, ?, ?, ?, ?, ?, ?)'''
+
+            db.execute_command(db_path, sql_str, data_tuple)
+
+            list_balls = []
 
         page_count += 1
         driver.close()
