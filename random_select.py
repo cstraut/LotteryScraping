@@ -15,10 +15,10 @@ def main():
     white_balls = []
     mega_balls = []
 
-    sql_str = '''SELECT ball_1, ball_2, ball_3, ball_4, ball_5 FROM mega_millions'''
+    sql_str = "SELECT ball_1, ball_2, ball_3, ball_4, ball_5 FROM mega_millions;"
     results = db.execute_query(db_path, sql_str)
 
-    sql_str = '''SELECT mega_ball FROM mega_millions'''
+    sql_str = "SELECT mega_ball FROM mega_millions;"
     mega_result = db.execute_query(db_path, sql_str)
 
     for rows in results:

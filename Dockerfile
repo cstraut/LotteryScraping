@@ -9,6 +9,6 @@ RUN pip install selenium pyvirtualdisplay numpy
 
 FROM build
 
-WORKDIR /usr/src/app
+WORKDIR /home/seluser
 
-COPY *.py /usr/src/app/
+COPY *.py /home/seluser

@@ -32,9 +32,11 @@ def execute_query(db_path, sql_str, values=None):
         conn_db = sqlite3.connect(db_path)
         cursor = conn_db.cursor()
         if values is None:
-            result = cursor.execute(sql_str)
+            cursor.execute(sql_str)
+            results = cursor.fetchall()
         else:
-            result = cursor.execute(sql_str, values)
+            cursor.execute(sql_str, values)
+            results = cursor.fetchall()
         conn_db.commit()
     except sqlite3.Error as error:
         print('Failed to execute SQL Command', error)
@@ -43,4 +45,4 @@ def execute_query(db_path, sql_str, values=None):
         cursor.close()
         conn_db.close()
         
-    return result
+    return results
