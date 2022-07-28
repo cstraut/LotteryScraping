@@ -11,6 +11,13 @@ def insert_draw(data_tuple):
     sql_str = '''INSERT INTO draws VALUES (?, ?, ?, ?, ?, ?, ?)'''
     db.execute_command(db_path, sql_str, data_tuple)
     
+
+def delete_draws():
+    """Delete the existing rows from the draws table to start fresh"""
+    sql_str = '''DELETE FROM draws'''
+    db.execute_command(db_path, sql_str)
+
+
 def main():
     white_balls = []
     mega_balls = []
@@ -33,6 +40,9 @@ def main():
 
     print(f"Number of white balls - {size_white_balls}")
     print(f"Number of mega balls {size_mega_balls}")
+
+    # Initialize the DRAWS table
+    delete_draws()
 
     row_id = 1
 
