@@ -46,7 +46,7 @@ def main():
 
     row_id = 1
 
-    for z in range(2000000):
+    for z in range(3500000):
         draw = []
 
         for x in range(5):

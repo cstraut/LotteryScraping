@@ -8,7 +8,7 @@ db_path = 'mega_millions.db'
 
 def insert_draw(data_tuple):
     """Insert the random draw in the database"""
-    sql_str = '''INSERT INTO draws VALUES (?, ?, ?, ?, ?, ?, ?)'''
+    sql_str = '''INSERT INTO draws_column VALUES (?, ?, ?, ?, ?, ?, ?)'''
     db.execute_command(db_path, sql_str, data_tuple)
 
     
@@ -20,6 +20,13 @@ def main():
     wb_4 = []
     wb_5 = []
     mega_balls = []
+
+    # Set path if running in the container to local folder and not MAC
+    path = os.getcwd()
+
+    # Create database table for column selection
+    sql_str = '''CREATE TABLE draws_column (id INT PRIMARY KEY, ball_1 INT, ball_2 INT, ball_3 INT, ball_4 INT, ball_5 INT, mega_ball INT);'''
+    db.execute_command(db_path, sql_str)
 
     sql_str = '''SELECT ball_1, ball_2, ball_3, ball_4, ball_5, mega_ball FROM mega_millions'''
     results = db.execute_query(db_path, sql_str)
@@ -42,8 +49,6 @@ def main():
     wb_len = len(wb_1)
 
     for y in range(2000000):
-        if (y + 1) % 10000:
-            print(y + 1)
         pick = []
         index = np.random.randint(1, wb_len)
         pick.append(wb_1[index - 1])

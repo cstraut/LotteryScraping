@@ -10,7 +10,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 
 db_path = 'mega_millions.db'
-hard_end_date = "Tue, September, 19, 2017"
+hard_end_date = "September, 19, 2017"
 
 global settings
 settings = {}
@@ -93,7 +93,7 @@ def main():
         driver.get(web)
 
         for i in range(1, 27):
-            row_date = driver.find_element(By.XPATH, '/html/body/div[1]/main/div[4]/table/tbody/tr[{}]/td[1]/section/a'.format(i)).text
+            row_date = driver.find_element(By.XPATH, '/html/body/div[1]/main/div[4]/table/tbody/tr[{}]/td[1]/section/a'.format(i)).text[5:]
 
             if first_pass:
                 last_row_date = row_date
@@ -101,7 +101,7 @@ def main():
 
             print("Row Date - " + row_date)
 
-            if end_date is None:
+            if end_date is None or end_date == '':
                 end_date = hard_end_date
 
             if row_date == end_date:
