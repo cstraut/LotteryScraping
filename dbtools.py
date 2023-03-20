@@ -46,3 +46,4 @@ def execute_query(db_path, sql_str, values=None):
         conn_db.close()
         
     return results
+
