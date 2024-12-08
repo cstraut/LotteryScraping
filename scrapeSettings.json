@@ -1,8 +1,12 @@
 {
+  "Powerball": [
+    {
+      "endDate": ""
+    }
+  ],
   "MegaMillions": [
     {
-      "endDate": "Tue, July, 19, 2022",
-      "endIndex": 506
+      "endDate": ""
     }
   ]
 }

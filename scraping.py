@@ -45,10 +45,10 @@ def write_settings(json_settings, settingsFilename='scrapeSettings.json'):
     # for each run
 
     if not os.path.exists(settingsFilename):
-        with open(settingsFilename, "w") as f:
+        with open(settingsFilename, "w", encoding="utf-8") as f:
             json.dump(json_settings, f, indent=2)
     else:
-        with open(settingsFilename, "w") as f:
+        with open(settingsFilename, "w", encoding="utf-8") as f:
             json.dump(json_settings, f, indent=2)
 
     

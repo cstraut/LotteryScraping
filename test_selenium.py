@@ -6,8 +6,11 @@ from selenium.webdriver import FirefoxOptions
 opts = FirefoxOptions()
 opts.add_argument("--headless")
 driver = webdriver.Firefox(options=opts)
-driver.get("http://www.python.org")
-assert "Python" in driver.title
+driver.get("http://www.usamega.com/powerball/results")
+elem = driver.find_element(
+    By.XPATH, '/html/body/div[1]/main/div[4]/table/thead/tr/td[1]')
+print(f'Text output - {str(elem.text)}')
+
 elem = driver.find_element(By.NAME, "q")
 elem.clear()
 elem.send_keys("pycon")
